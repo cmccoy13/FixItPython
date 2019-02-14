@@ -1,0 +1,50 @@
+%matplotlib inline
+import pandas as pd
+import matplotlib.pyplot as plt
+
+dummy = pd.read_table('dummy_data.txt')
+dummy.head()
+
+##
+print(dummy.shape)
+
+##
+dummy.plot(kind='box', subplots=True, layout=(2,3), sharex=False, sharey=False, figsize=(9,9), 
+                                        title='Box Plot for each input variable')
+plt.savefig('dummy_box')
+plt.show()
+
+##
+from pandas.tools.plotting import scatter_matrix
+from matplotlib import cm
+feature_names = ['difficulty', 'steps', 'time_req', 'time_avg', 'views_per_pic']
+X = dummy[feature_names]
+y = dummy['difficulty']
+cmap = cm.get_cmap('gnuplot')
+scatter = pd.scatter_matrix(X, c = y, marker = 'o', s=40, hist_kwds={'bins':15}, figsize=(9,9), cmap = cmap)
+plt.suptitle('Scatter-matrix for each input variable')
+plt.savefig('dummy_scatter_matrix')
+
+##
+# Importing Modules
+from sklearn import datasets
+from sklearn.cluster import KMeans
+
+# Declaring Model
+model = KMeans(n_clusters=2)
+
+# Fitting Model
+model.fit(dummy.loc[:, "time_avg" : "views_per_pic"])
+
+# Prediction on the entire data
+all_predictions = model.predict(dummy.loc[:, "time_avg" : "views_per_pic"])
+
+# Printing Predictions
+print(all_predictions)
+
+x_axis = dummy.loc[:, "time_avg"]  # Avg time spent viewing each step
+y_axis = dummy.loc[:, "views_per_pic"]  # Avg num views per picture
+
+# Plotting
+plt.scatter(x_axis, y_axis, c=all_predictions)
+plt.show()
